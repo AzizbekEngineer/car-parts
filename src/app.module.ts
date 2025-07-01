@@ -23,7 +23,7 @@ import { Car } from './cars/entities/car.entity';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: process.env.DATABASE_URL || "postgresql://postgresql_9eoz_user:Xp2A37RfR5ypHiWckZY6GsOohzndOCnm@dpg-cu6iq1dsvqrc738j18c0-a.oregon-postgres.render.com/postgresql_9eoz",
+      url: process.env.DATABASE_URL || 'postgresql://postgres:kzkKIsLBmILciwKoRmbLdZPtQawOsheO@switchback.proxy.rlwy.net:12532/railway',
       entities: [Part, User, Category, OEM, Brand, Car],
       ssl: {
         rejectUnauthorized: false,

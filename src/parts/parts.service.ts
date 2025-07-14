@@ -65,6 +65,7 @@ export class PartsService {
         oems,
         brands,
         cars,
+        year: createPartDto.year,
       });
 
       return await this.partsRepository.save(part);
@@ -100,7 +101,7 @@ export class PartsService {
       where: { id },
       relations: ['categories', 'oems', 'brands', 'cars'],
     });
-  
+
     if (!part) {
       throw new NotFoundException(`ID ${id} ga ega mahsulot topilmadi!`);
     }
@@ -117,6 +118,7 @@ export class PartsService {
     part.price = updatePartDto.price ?? part.price;
     part.trtCode = updatePartDto.trtCode || part.trtCode;
     part.imgUrl = updatePartDto.imgUrl || part.imgUrl;
+    part.year = updatePartDto.year ?? part.year;
 
     if (updatePartDto.categories) {
       part.categories = await this.categoriesRepository.findByIds(updatePartDto.categories);
@@ -145,24 +147,21 @@ export class PartsService {
 
   async getPartsByCategory(categoryId: number) {
     const queryBuilder = this.categoriesRepository.createQueryBuilder('category');
-  
-    // Kategoriyani ID bo'yicha topish va unga tegishli part-larni olib kelish
+
     const category = await queryBuilder
-      .leftJoinAndSelect('category.parts', 'part')  // Kategoriyaga tegishli part-larni olish
+      .leftJoinAndSelect('category.parts', 'part')
       .where('category.id = :categoryId', { categoryId })
       .getOne();
-  
+
     if (!category) {
       throw new NotFoundException(`Bunday kategoriya topilmadi!`);
     }
-  
-    // Kategoriya ma'lumotlari va part-larni qaytarish
+
     return {
-      category,  // Kategoriya haqida to'liq ma'lumot
-      parts: category.parts,  // Kategoriya ichidagi barcha part-lar
+      category,
+      parts: category.parts,
     };
   }
-  
 
   async getAllOem() {
     const distinctOems = await this.partsRepository
@@ -219,8 +218,6 @@ export class PartsService {
     }
     return categories.sort((a, b) => a.id - b.id);
   }
-  
-  
 
   async searchByName(name: string) {
     const parts = await this.partsRepository
@@ -251,5 +248,4 @@ export class PartsService {
       return null;
     }
   }
-  
 }

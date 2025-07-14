@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsNotEmpty, IsOptional, IsBoolean, IsArray, isNotEmpty } from 'class-validator';
+import { IsString, IsNumber, IsNotEmpty, IsOptional, IsBoolean, IsArray } from 'class-validator';
 
 export class CreatePartDto {
   @IsString()
@@ -68,4 +68,7 @@ export class CreatePartDto {
   @IsOptional()
   imgUrl?: string;
 
+  @IsNumber()
+  @IsOptional() 
+  year?: number;
 }

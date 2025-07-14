@@ -63,4 +63,7 @@ export class Part {
 
   @Column({ nullable: true })
   imgUrl: string;
+
+  @Column({ nullable: true })
+  year: number;
 }

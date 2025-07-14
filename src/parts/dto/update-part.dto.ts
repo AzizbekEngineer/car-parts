@@ -52,7 +52,7 @@ export class UpdatePartDto {
   @IsArray()
   @IsOptional()
   images?: string[];
-  
+
   @IsArray()
   @IsOptional()
   models?: string[];
@@ -68,5 +68,8 @@ export class UpdatePartDto {
   @IsString()
   @IsOptional()
   imgUrl?: string;
-  
+
+  @IsNumber()
+  @IsOptional()
+  year?: number;
 }

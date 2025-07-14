@@ -31,7 +31,7 @@ export class PartsService {
     @InjectRepository(Car)
     private readonly carsRepository: Repository<Car>,
   ) {
-    const uploadDir = join(__dirname, '..', 'uploads');
+    const uploadDir = join(__dirname, '..', 'Uploads');
     if (!existsSync(uploadDir)) {
       mkdirSync(uploadDir);
     }
@@ -65,7 +65,7 @@ export class PartsService {
         oems,
         brands,
         cars,
-        year: createPartDto.year,
+        years: createPartDto.years,
       });
 
       return await this.partsRepository.save(part);
@@ -118,7 +118,7 @@ export class PartsService {
     part.price = updatePartDto.price ?? part.price;
     part.trtCode = updatePartDto.trtCode || part.trtCode;
     part.imgUrl = updatePartDto.imgUrl || part.imgUrl;
-    part.year = updatePartDto.year ?? part.year;
+    part.years = updatePartDto.years ?? part.years;
 
     if (updatePartDto.categories) {
       part.categories = await this.categoriesRepository.findByIds(updatePartDto.categories);
@@ -241,7 +241,7 @@ export class PartsService {
     if (!imageName) {
       return null;
     }
-    const imagePath = path.join(__dirname, '..', '..', 'uploads', imageName);
+    const imagePath = path.join(__dirname, '..', '..', 'Uploads', imageName);
     if (fs.existsSync(imagePath)) {
       return imagePath;
     } else {

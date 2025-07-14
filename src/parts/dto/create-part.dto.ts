@@ -68,7 +68,8 @@ export class CreatePartDto {
   @IsOptional()
   imgUrl?: string;
 
-  @IsNumber()
-  @IsOptional() 
-  year?: number;
+  @IsArray()
+  @IsOptional()
+  @IsNumber({}, { each: true })
+  years?: number[];
 }

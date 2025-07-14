@@ -69,7 +69,8 @@ export class UpdatePartDto {
   @IsOptional()
   imgUrl?: string;
 
-  @IsNumber()
+  @IsArray()
   @IsOptional()
-  year?: number;
+  @IsNumber({}, { each: true })
+  years?: number[];
 }

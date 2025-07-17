@@ -22,7 +22,7 @@ import { Category } from './categories/entities/category.entity';
       ssl: {
         rejectUnauthorized: false,
       },
-      synchronize: true,
+      synchronize: false,
     }),
     PartsModule,
     AuthModule,

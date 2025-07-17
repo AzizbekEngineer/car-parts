@@ -8,12 +8,6 @@ import { join } from 'path';
 import { PartsModule } from './parts/parts.module';
 import { CategoriesModule } from './categories/categories.module';
 import { Category } from './categories/entities/category.entity';
-import { BrandsModule } from './brands/brands.module';
-import { CarsModule } from './cars/cars.module';
-import { OemsModule } from './oem/oem.module';
-import { OEM } from './oem/entities/oem.entity';
-import { Brand } from './brands/entities/brand.entity';
-import { Car } from './cars/entities/car.entity';
 
 @Module({
   imports: [
@@ -24,7 +18,7 @@ import { Car } from './cars/entities/car.entity';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL || 'postgresql://postgres:kzkKIsLBmILciwKoRmbLdZPtQawOsheO@switchback.proxy.rlwy.net:12532/railway',
-      entities: [Part, User, Category, OEM, Brand, Car],
+      entities: [Part, User, Category],
       ssl: {
         rejectUnauthorized: false,
       },
@@ -32,10 +26,7 @@ import { Car } from './cars/entities/car.entity';
     }),
     PartsModule,
     AuthModule,
-    CategoriesModule,
-    BrandsModule,
-    CarsModule,
-    OemsModule
+    CategoriesModule
   ],
   controllers: [],
   providers: [],

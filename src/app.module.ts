@@ -17,12 +17,16 @@ import { Category } from './categories/entities/category.entity';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: process.env.DATABASE_URL || 'postgresql://postgres:kzkKIsLBmILciwKoRmbLdZPtQawOsheO@switchback.proxy.rlwy.net:12532/railway',
-      entities: [Part, User, Category],
-      ssl: {
-        rejectUnauthorized: false,
-      },
-      synchronize: false,
+    host: 'switchback.proxy.rlwy.net',
+    port: 12532,
+    username: 'postgres',
+    password: 'kzkKIsLBmILciwKoRmbLdZPtQawOsheO',
+    database: 'railway',
+    autoLoadEntities: true,
+    synchronize: true,
+    ssl: {
+      rejectUnauthorized: false,
+    },
     }),
     PartsModule,
     AuthModule,

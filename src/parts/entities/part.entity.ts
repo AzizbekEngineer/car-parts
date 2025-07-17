@@ -15,23 +15,23 @@ export class Part {
   @Column({ unique: true })
   trtCode: string;
 
-  @Column('simple-array', { nullable: true })
+  @Column("text", {array: true, nullable: true })
   marka: string[];
 
-  @Column('simple-array', { nullable: true })
-  model: string[];
+  @Column("text", {array: true, nullable: true })
+  year: number[];
 
-  @Column('simple-array', { nullable: true })
+  @Column("text", { array: true, nullable: true })
   oem: string[];
 
-  @Column('simple-array', { nullable: true })
-  year: number[];
+  @Column("text", { array: true, nullable: true })
+  brand: string[];
+
+  @Column("text", { array: true, nullable: true })
+  model: string[];
 
   @Column({ nullable: true })
   country: string;
-
-  @Column('simple-array', { nullable: true })
-  brand: string[];
 
   @Column({ default: 'шт' })
   baseUnit: string;
@@ -43,7 +43,7 @@ export class Part {
   @Column({ nullable: true })
   price: number;
 
-  @Column('simple-array', { nullable: true })
+  @Column("text", {array: true, nullable: true })
   images: string[];
 
   @Column({ default: true })

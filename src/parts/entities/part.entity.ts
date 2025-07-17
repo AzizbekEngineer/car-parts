@@ -6,7 +6,7 @@ export class Part {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
+  @Column({ nullable: true})
   sku: string;
 
   @Column()

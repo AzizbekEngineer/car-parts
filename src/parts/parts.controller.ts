@@ -7,7 +7,6 @@ import { diskStorage } from 'multer';
 import path, { extname } from 'path';
 import { Response } from 'express';
 
-
 @Controller('products')
 export class PartsController {
   constructor(private readonly partsService: PartsService) {}
@@ -22,26 +21,24 @@ export class PartsController {
     return await this.partsService.findAll();
   }
 
-
   @Get(':id')
   async findOne(@Param('id') id: number) {
     return await this.partsService.findOne(id);
   }
 
   @Post('upload')
-@UseInterceptors(FileInterceptor('image', {
-  storage: diskStorage({
-    destination: './uploads', // Faylni saqlash joyi
-    filename: (req, file, callback) => {
-      const uniqueSuffix = Date.now() + extname(file.originalname); // Fayl nomiga noyob qo'shimcha qo'shish
-      callback(null, file.fieldname + '-' + uniqueSuffix);
-    },
-  }),
-}))
-async uploadFile(@UploadedFile() file: Express.Multer.File) {
-  return this.partsService.handleFileUpload(file); // Faylni servisa yuborish
-}
-
+  @UseInterceptors(FileInterceptor('image', {
+    storage: diskStorage({
+      destination: './Uploads',
+      filename: (req, file, callback) => {
+        const uniqueSuffix = Date.now() + extname(file.originalname);
+        callback(null, file.fieldname + '-' + uniqueSuffix);
+      },
+    }),
+  }))
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    return this.partsService.handleFileUpload(file);
+  }
 
   @Put(':id')
   async update(@Param('id') id: number, @Body() updatePartDto: UpdatePartDto) {
@@ -53,46 +50,44 @@ async uploadFile(@UploadedFile() file: Express.Multer.File) {
     return await this.partsService.remove(id);
   }
 
-   @Get('oem/all')
-   async getAllOem() {
-     return await this.partsService.getAllOem();
-   }
- 
-   @Get('oem/:oem')
-   async getOemId(@Param('oem') oem: string) {
-     return await this.partsService.getOemId(oem);
-   }
- 
-   @Get('trt/:trt')
-   async getTrtCode(@Param('trt') trt: string) {
-     return await this.partsService.getTrtCode(trt);
-   }
- 
-   @Get('brand/:brand')
-   async getBrand(@Param('brand') brand: string) {
-     return await this.partsService.getBrand(brand);
-   }
- 
-   @Get('part/search')
-   async search(
-     @Query('oem') oem: any, 
-     @Query('trt') trt: any, 
-     @Query('brand') brand: any, 
-     @Query('model') model: any
-   ) {
-     return await this.partsService.search(oem, trt, brand, model);
-   }
+  @Get('oem/all')
+  async getAllOem() {
+    return await this.partsService.getAllOem();
+  }
 
-   @Get('part/category/:categoryId')
-  async getPartsByCategory(@Param('categoryId') categoryId: number) {
-  return await this.partsService.getPartsByCategory(categoryId);
+  @Get('oem/:oem')
+  async getOemId(@Param('oem') oem: string) {
+    return await this.partsService.getOemId(oem);
+  }
+
+  @Get('trt/:trt')
+  async getTrtCode(@Param('trt') trt: string) {
+    return await this.partsService.getTrtCode(trt);
+  }
+
+  @Get('brand/:brand')
+  async getBrand(@Param('brand') brand: string) {
+    return await this.partsService.getBrand(brand);
+  }
+
+  @Get('part/search')
+  async search(
+    @Query('oem') oem: any,
+    @Query('trt') trt: any,
+    @Query('brand') brand: any,
+    @Query('model') model: any
+  ) {
+    return await this.partsService.search(oem, trt, brand, model);
+  }
+
+  @Get('part/category/:categoryId')
+  async getPartsByCategory(@Param('categoryId') categoryId: string) {
+    return await this.partsService.getPartsByCategory(categoryId);
   }
 
   @Get('uploads/:imageName')
   async getImage(@Param('imageName') imageName: string, @Res() res: Response) {
-    // Service orqali rasmni olish
     const imagePath = this.partsService.getImagePath(imageName);
-
     if (imagePath) {
       return res.sendFile(imagePath);
     } else {
@@ -112,7 +107,6 @@ async uploadFile(@UploadedFile() file: Express.Multer.File) {
 
   @Get('all/count')
   async getTotalCount() {
-  return await this.partsService.getTotalCount();
-}
- 
+    return await this.partsService.getTotalCount();
+  }
 }

@@ -1,76 +1,67 @@
-import { IsString, IsNumber, IsOptional, IsBoolean, IsArray } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsArray, IsOptional, IsBoolean, Min, ArrayNotEmpty, IsInt } from 'class-validator';
 
 export class UpdatePartDto {
   @IsString()
   @IsOptional()
-  sku?: string;
+  sku: string;
 
   @IsString()
   @IsOptional()
-  name?: string;
+  name: string;
 
   @IsString()
   @IsOptional()
-  visibilityInCatalog?: string;
+  trtCode: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  marka: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  model: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  oem: string[];
+
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @IsOptional()
+  year: number[];
 
   @IsString()
   @IsOptional()
-  language?: string;
+  country: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  brand: string[];
+
+  @IsString()
+  @IsOptional()
+  baseUnit: string;
+
+  @IsArray()
+  @IsInt({ each: true })
+  @IsOptional()
+  categories: number[];
 
   @IsNumber()
+  @Min(0)
   @IsOptional()
-  translationGroup?: number;
+  price: number;
 
-  @IsString()
+  @IsArray()
+  @IsString({ each: true })
   @IsOptional()
-  shortDescription?: string;
-
-  @IsString()
-  @IsOptional()
-  description?: string;
+  images: string[];
 
   @IsBoolean()
   @IsOptional()
-  inStock?: boolean;
-
-  @IsArray()
-  @IsOptional()
-  categories?: number[];
-
-  @IsArray()
-  @IsOptional()
-  cars?: number[];
-
-  @IsArray()
-  @IsOptional()
-  oems?: number[];
-
-  @IsArray()
-  @IsOptional()
-  brands?: number[];
-
-  @IsArray()
-  @IsOptional()
-  images?: string[];
-
-  @IsArray()
-  @IsOptional()
-  models?: string[];
-
-  @IsNumber()
-  @IsOptional()
-  price?: number;
-
-  @IsString()
-  @IsOptional()
-  trtCode?: string;
-
-  @IsString()
-  @IsOptional()
-  imgUrl?: string;
-
-  @IsArray()
-  @IsOptional()
-  @IsNumber({}, { each: true })
-  years?: number[];
+  inStock: boolean;
 }

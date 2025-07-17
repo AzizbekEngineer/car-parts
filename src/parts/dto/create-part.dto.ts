@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsNotEmpty, IsOptional, IsBoolean, IsArray } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsArray, IsOptional, IsBoolean, Min, ArrayNotEmpty, IsInt } from 'class-validator';
 
 export class CreatePartDto {
   @IsString()
@@ -10,66 +10,58 @@ export class CreatePartDto {
   name: string;
 
   @IsString()
+  @IsNotEmpty()
+  trtCode: string;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsString({ each: true })
+  marka: string[];
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsString({ each: true })
+  model: string[];
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsString({ each: true })
+  oem: string[];
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsNumber({}, { each: true })
+  year: number[];
+
+  @IsString()
   @IsOptional()
-  visibilityInCatalog?: string;
+  country: string;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsString({ each: true })
+  brand: string[];
 
   @IsString()
   @IsNotEmpty()
-  language: string;
+  baseUnit: string;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsInt({ each: true })
+  categories: number[];
 
   @IsNumber()
+  @Min(0)
   @IsOptional()
-  translationGroup?: number;
+  price: number;
 
-  @IsString()
+  @IsArray()
+  @IsString({ each: true })
   @IsOptional()
-  shortDescription?: string;
-
-  @IsString()
-  @IsOptional()
-  description?: string;
+  images: string[];
 
   @IsBoolean()
   @IsOptional()
-  inStock?: boolean;
-
-  @IsArray()
-  @IsOptional()
-  categories?: number[];
-
-  @IsArray()
-  @IsOptional()
-  cars?: number[];
-
-  @IsArray()
-  @IsOptional()
-  oems?: number[];
-
-  @IsArray()
-  @IsOptional()
-  brands?: number[];
-
-  @IsArray()
-  @IsOptional()
-  images?: string[];
-  
-  @IsArray()
-  models: string[];
-
-  @IsNumber()
-  @IsOptional()
-  price?: number;
-
-  @IsString()
-  @IsOptional()
-  trtCode?: string;
-
-  @IsString()
-  @IsOptional()
-  imgUrl?: string;
-
-  @IsArray()
-  @IsOptional()
-  @IsNumber({}, { each: true })
-  years?: number[];
+  inStock: boolean;
 }

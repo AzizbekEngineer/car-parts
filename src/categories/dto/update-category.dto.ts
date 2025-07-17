@@ -1,19 +1,20 @@
-import { IsString, IsOptional, IsArray, IsNotEmpty, IsUrl } from 'class-validator';
+import { IsString, IsOptional, IsArray, IsInt } from 'class-validator';
 
 export class UpdateCategoryDto {
   @IsString()
   @IsOptional()
-  name?: string;
+  name: string;
 
   @IsString()
   @IsOptional()
-  description?: string;
+  description: string;
 
-  @IsUrl()
+  @IsString()
   @IsOptional()
-  imageUrl?: string;
+  imageUrl: string;
 
   @IsArray()
+  @IsInt({ each: true })
   @IsOptional()
-  parts?: number[];
+  parts: number[];
 }

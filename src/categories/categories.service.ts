@@ -50,7 +50,7 @@ export class CategoryService {
   }
 
   async findOne(id: number) {
-    const category = await this.categoryRepository.findOne({where: {id}, relations: ["parts"]});
+    const category = await this.categoryRepository.findOne({ where: { id }, relations: ['parts'] });
     if (!category) {
       throw new NotFoundException(`ID ${id} ga ega kategoriya topilmadi!`);
     }
@@ -62,24 +62,24 @@ export class CategoryService {
     if (!category) {
       throw new NotFoundException(`ID ${id} ga ega kategoriya topilmadi!`);
     }
-  
-    // Agar yangi nom berilgan bo'lsa, mavjudligini tekshirish
+
     if (updateCategoryDto.name) {
       const existingCategory = await this.categoryRepository.findOne({ where: { name: updateCategoryDto.name } });
       if (existingCategory && existingCategory.id !== id) {
         throw new BadRequestException(`Kategoriya nomi ${updateCategoryDto.name} allaqachon mavjud`);
       }
     }
-  
-    // DTO qiymatlarini mavjud obyektga biriktirish
+
+    if (updateCategoryDto.parts) {
+      category.parts = await this.partRepository.findByIds(updateCategoryDto.parts);
+    }
+
     Object.assign(category, updateCategoryDto);
-  
-    // Yangilangan obyektni saqlash
     return this.categoryRepository.save(category);
   }
-  
+
   async remove(id: number) {
-    const category = await this.categoryRepository.findOne({where: {id}});
+    const category = await this.categoryRepository.findOne({ where: { id } });
     if (!category) {
       throw new NotFoundException(`ID ${id} ga ega kategoriya topilmadi!`);
     }

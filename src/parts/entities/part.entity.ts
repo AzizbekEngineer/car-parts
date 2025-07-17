@@ -1,69 +1,51 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable, ManyToOne } from 'typeorm';
-import { Category } from 'src/categories/entities/category.entity';
-import { Brand } from 'src/brands/entities/brand.entity';
-import { Car } from 'src/cars/entities/car.entity';
-import { OEM } from '../../oem/entities/oem.entity';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable } from 'typeorm';
+import { Category } from '../../categories/entities/category.entity';
 
-@Entity('products')
+@Entity()
 export class Part {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ unique: true })
   sku: string;
 
   @Column()
   name: string;
 
+  @Column({ unique: true })
+  trtCode: string;
+
+  @Column('simple-array', { nullable: true })
+  marka: string[];
+
+  @Column('simple-array', { nullable: true })
+  model: string[];
+
+  @Column('simple-array', { nullable: true })
+  oem: string[];
+
+  @Column('simple-array', { nullable: true })
+  year: number[];
+
   @Column({ nullable: true })
-  visibilityInCatalog: string;
+  country: string;
 
-  @Column()
-  language: string;
+  @Column('simple-array', { nullable: true })
+  brand: string[];
 
-  @Column({ nullable: true })
-  translationGroup: number;
+  @Column({ default: 'шт' })
+  baseUnit: string;
 
-  @Column({ nullable: true })
-  shortDescription: string;
-
-  @Column({ nullable: true })
-  description: string; 
-
-  @Column({ default: true })
-  inStock: boolean;
-
-  @ManyToMany(() => Category, (category) => category.parts, { onDelete: "CASCADE" })
+  @ManyToMany(() => Category, (category) => category.parts, { cascade: true })
   @JoinTable()
   categories: Category[];
-
-  @ManyToMany(() => Brand, (brand) => brand.parts)
-  @JoinTable()
-  brands: Brand[];
-
-  @ManyToMany(() => Car, (car) => car.parts)
-  @JoinTable()
-  cars: Car[];
-
-  @ManyToMany(() => OEM, (oem) => oem.parts)
-  @JoinTable()
-  oems: OEM[];
-
-  @Column('simple-array', { nullable: true })
-  images: string[]; 
-  
-  @Column('simple-array', { nullable: true })
-  models: string[]; 
 
   @Column({ nullable: true })
   price: number;
 
-  @Column({ nullable: true })
-  trtCode: string;
-
-  @Column({ nullable: true })
-  imgUrl: string;
-
   @Column('simple-array', { nullable: true })
-  years: number[];
+  images: string[];
+
+  @Column({ default: true })
+  inStock: boolean;
 }

@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsArray, IsNotEmpty, IsUrl } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsArray, IsInt } from 'class-validator';
 
 export class CreateCategoryDto {
   @IsString()
@@ -7,13 +7,14 @@ export class CreateCategoryDto {
 
   @IsString()
   @IsOptional()
-  description?: string;
+  description: string;
 
-  @IsUrl()
+  @IsString()
   @IsOptional()
-  imageUrl?: string;
+  imageUrl: string;
 
   @IsArray()
+  @IsInt({ each: true })
   @IsOptional()
-  parts?: number[]; // parts as an array of IDs
+  parts: number[];
 }

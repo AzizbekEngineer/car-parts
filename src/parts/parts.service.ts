@@ -4,32 +4,19 @@ import { Repository } from 'typeorm';
 import { Part } from './entities/part.entity';
 import { CreatePartDto } from './dto/create-part.dto';
 import { UpdatePartDto } from './dto/update-part.dto';
-import { Category } from 'src/categories/entities/category.entity';
-import * as path from 'path'; 
-import * as fs from 'fs'; 
+import { Category } from '../categories/entities/category.entity';
+import * as path from 'path';
+import * as fs from 'fs';
 import { existsSync, mkdirSync } from 'fs';
-import { join } from 'path/posix';
-import { OEM } from 'src/oem/entities/oem.entity';
-import { Brand } from 'src/brands/entities/brand.entity';
-import { Car } from 'src/cars/entities/car.entity';
+import { join } from 'path';
 
 @Injectable()
 export class PartsService {
   constructor(
     @InjectRepository(Part)
     private readonly partsRepository: Repository<Part>,
-
     @InjectRepository(Category)
     private readonly categoriesRepository: Repository<Category>,
-
-    @InjectRepository(OEM)
-    private readonly oemsRepository: Repository<OEM>,
-
-    @InjectRepository(Brand)
-    private readonly brandsRepository: Repository<Brand>,
-
-    @InjectRepository(Car)
-    private readonly carsRepository: Repository<Car>,
   ) {
     const uploadDir = join(__dirname, '..', 'Uploads');
     if (!existsSync(uploadDir)) {
@@ -55,19 +42,10 @@ export class PartsService {
 
     try {
       const categories = await this.categoriesRepository.findByIds(createPartDto.categories || []);
-      const oems = await this.oemsRepository.findByIds(createPartDto.oems || []);
-      const brands = await this.brandsRepository.findByIds(createPartDto.brands || []);
-      const cars = await this.carsRepository.findByIds(createPartDto.cars || []);
-
       const part = this.partsRepository.create({
         ...createPartDto,
         categories,
-        oems,
-        brands,
-        cars,
-        years: createPartDto.years,
       });
-
       return await this.partsRepository.save(part);
     } catch (error) {
       console.error('Mahsulot qo‘shishda xatolik:', error);
@@ -76,9 +54,7 @@ export class PartsService {
   }
 
   async findAll() {
-    const parts = await this.partsRepository.find({
-      relations: ['categories', 'oems', 'brands', 'cars'],
-    });
+    const parts = await this.partsRepository.find({ relations: ['categories'] });
     if (!parts.length) {
       throw new NotFoundException('Hozircha mahsulotlar mavjud emas!');
     }
@@ -86,10 +62,7 @@ export class PartsService {
   }
 
   async findOne(id: number) {
-    const part = await this.partsRepository.findOne({
-      where: { id },
-      relations: ['categories', 'oems', 'brands', 'cars'],
-    });
+    const part = await this.partsRepository.findOne({ where: { id }, relations: ['categories'] });
     if (!part) {
       throw new NotFoundException(`ID ${id} ga ega mahsulot topilmadi!`);
     }
@@ -97,42 +70,16 @@ export class PartsService {
   }
 
   async update(id: number, updatePartDto: UpdatePartDto) {
-    const part = await this.partsRepository.findOne({
-      where: { id },
-      relations: ['categories', 'oems', 'brands', 'cars'],
-    });
-
+    const part = await this.partsRepository.findOne({ where: { id }, relations: ['categories'] });
     if (!part) {
       throw new NotFoundException(`ID ${id} ga ega mahsulot topilmadi!`);
     }
 
-    part.sku = updatePartDto.sku || part.sku;
-    part.name = updatePartDto.name || part.name;
-    part.visibilityInCatalog = updatePartDto.visibilityInCatalog || part.visibilityInCatalog;
-    part.language = updatePartDto.language || part.language;
-    part.translationGroup = updatePartDto.translationGroup || part.translationGroup;
-    part.shortDescription = updatePartDto.shortDescription || part.shortDescription;
-    part.description = updatePartDto.description || part.description;
-    part.inStock = updatePartDto.inStock ?? part.inStock;
-    part.images = updatePartDto.images || part.images;
-    part.price = updatePartDto.price ?? part.price;
-    part.trtCode = updatePartDto.trtCode || part.trtCode;
-    part.imgUrl = updatePartDto.imgUrl || part.imgUrl;
-    part.years = updatePartDto.years ?? part.years;
-
     if (updatePartDto.categories) {
       part.categories = await this.categoriesRepository.findByIds(updatePartDto.categories);
     }
-    if (updatePartDto.oems) {
-      part.oems = await this.oemsRepository.findByIds(updatePartDto.oems);
-    }
-    if (updatePartDto.brands) {
-      part.brands = await this.brandsRepository.findByIds(updatePartDto.brands);
-    }
-    if (updatePartDto.cars) {
-      part.cars = await this.carsRepository.findByIds(updatePartDto.cars);
-    }
 
+    Object.assign(part, updatePartDto);
     return await this.partsRepository.save(part);
   }
 
@@ -145,67 +92,62 @@ export class PartsService {
     return { message: `Mahsulot muvaffaqiyatli o‘chirildi!` };
   }
 
-  async getPartsByCategory(categoryId: number) {
-    const queryBuilder = this.categoriesRepository.createQueryBuilder('category');
-
-    const category = await queryBuilder
-      .leftJoinAndSelect('category.parts', 'part')
-      .where('category.id = :categoryId', { categoryId })
-      .getOne();
-
+  async getPartsByCategory(categoryId: string) {
+    const category = await this.categoriesRepository.findOne({
+      where: { id: parseInt(categoryId) },
+      relations: ['parts'],
+    });
     if (!category) {
-      throw new NotFoundException(`Bunday kategoriya topilmadi!`);
+      throw new NotFoundException(`ID ${categoryId} ga ega kategoriya topilmadi!`);
     }
-
-    return {
-      category,
-      parts: category.parts,
-    };
+    return { category, parts: category.parts };
   }
 
   async getAllOem() {
     const distinctOems = await this.partsRepository
       .createQueryBuilder('part')
-      .select('DISTINCT part.oem')
+      .select('UNNEST(part.oem) AS oem')
+      .distinct(true)
       .getRawMany();
-
-    return distinctOems.map(oem => oem.oem);
+    return distinctOems.map((row) => row.oem);
   }
 
   async getOemId(oem: string) {
     const trts = await this.partsRepository
       .createQueryBuilder('part')
       .select('DISTINCT part.trtCode')
-      .where('part.oem = :oem', { oem })
+      .where(':oem = ANY(part.oem)', { oem })
       .getRawMany();
-    return trts.map(trt => trt.trtCode);
+    return trts.map((trt) => trt.trtCode);
   }
 
   async getTrtCode(trt: string) {
     const brands = await this.partsRepository
       .createQueryBuilder('part')
-      .select('DISTINCT part.brand')
+      .select('UNNEST(part.brand) AS brand')
       .where('part.trtCode = :trt', { trt })
+      .distinct(true)
       .getRawMany();
-    return brands.map(brand => brand.brand);
+    return brands.map((brand) => brand.brand);
   }
 
   async getBrand(brand: string) {
     const models = await this.partsRepository
       .createQueryBuilder('part')
-      .select('DISTINCT part.model')
-      .where('part.brand = :brand', { brand })
+      .select('UNNEST(part.model) AS model')
+      .where(':brand = ANY(part.brand)', { brand })
+      .distinct(true)
       .getRawMany();
-    return models.map(model => model.model);
+    return models.map((model) => model.model);
   }
 
   async search(oem: string, trt: string, brand: string, model: string) {
     const queryBuilder = this.partsRepository.createQueryBuilder('part');
 
-    if (oem) queryBuilder.andWhere('LOWER(part.oem) = LOWER(:oem)', { oem: oem.toLowerCase() });
-    if (trt) queryBuilder.andWhere('LOWER(part.trtCode) = LOWER(:trt)', { trt: trt.toLowerCase() });
-    if (brand) queryBuilder.andWhere('LOWER(part.brand) = LOWER(:brand)', { brand: brand.toLowerCase() });
-    if (model) queryBuilder.andWhere('LOWER(part.model) = LOWER(:model)', { model: model.toLowerCase() });
+    if (oem) queryBuilder.andWhere(':oem = ANY(part.oem)', { oem });
+    if (trt) queryBuilder.andWhere('LOWER(part.trtCode) = LOWER(:trt)', { trt });
+    if (brand) queryBuilder.andWhere(':brand = ANY(part.brand)', { brand });
+    if (model) queryBuilder.andWhere(':model = ANY(part.model)', { model });
 
     const parts = await queryBuilder.getMany();
     return parts;
@@ -214,7 +156,7 @@ export class PartsService {
   async getCategories() {
     const categories = await this.categoriesRepository.find();
     if (categories.length === 0) {
-      throw new Error('No categories found!');
+      throw new NotFoundException('Hozircha kategoriyalar mavjud emas!');
     }
     return categories.sort((a, b) => a.id - b.id);
   }
@@ -222,13 +164,12 @@ export class PartsService {
   async searchByName(name: string) {
     const parts = await this.partsRepository
       .createQueryBuilder('part')
-      .where('LOWER(part.name) LIKE LOWER(:name)', { name: `%${name.toLowerCase()}%` })
+      .where('LOWER(part.name) LIKE LOWER(:name)', { name: `%${name}%` })
       .getMany();
 
-    if (parts.length === 0) {
+    if (!parts.length) {
       throw new NotFoundException(`"${name}" nomi bo‘yicha mahsulot topilmadi!`);
     }
-
     return parts;
   }
 

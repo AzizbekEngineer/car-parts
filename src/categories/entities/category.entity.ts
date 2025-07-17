@@ -15,7 +15,7 @@ export class Category {
   @Column({ nullable: true })
   imageUrl: string;
 
-  @ManyToMany(() => Part, (part) => part.categories, { cascade: true })
+  @ManyToMany(() => Part, (part) => part.categories)
   @JoinTable()
   parts: Part[];
 }

@@ -104,6 +104,7 @@ export class PartsService {
 }
 
 async remove(id: number) {
+  // Avval part'ni topamiz (categories bilan)
   const part = await this.partsRepository.findOne({
     where: { id },
     relations: ['categories'],
@@ -113,17 +114,19 @@ async remove(id: number) {
     throw new NotFoundException(`ID ${id} ga ega part topilmadi`);
   }
 
-  // 🔍 Shu yerda tekshir: categories borligini
-  if (part.categories && part.categories.length > 0) {
-    // 🧹 Bog'lanmalarni tozalaymiz
+  // Log bilan tekshirish: bog'langan category bormi?
+  console.log('Bog‘langan kategoriyalar:', part.categories);
+
+  // Bog‘lanmalarni tozalash: agar mavjud bo‘lsa
+  if (part.categories.length > 0) {
     await this.partsRepository
       .createQueryBuilder()
       .relation(Part, 'categories')
-      .of(part) // yoki .of(id)
+      .of(id)
       .remove(part.categories);
   }
 
-  // ✅ Partni o'chiramiz
+  // Endi part'ni o‘chiramiz
   await this.partsRepository.delete(id);
 
   return { message: 'Part muvaffaqiyatli o‘chirildi!' };

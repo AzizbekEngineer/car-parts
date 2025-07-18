@@ -79,17 +79,26 @@ export class CategoryService {
   }
 
   async remove(id: number) {
-    const category = await this.categoryRepository.findOne({ where: { id } });
-    if (!category) {
-      throw new NotFoundException(`ID ${id} ga ega kategoriya topilmadi!`);
-    }
+  const category = await this.categoryRepository.findOne({
+    where: { id },
+    relations: ['parts'],
+  });
 
-    try {
-      await this.categoryRepository.delete(id);
-      return { message: 'Kategoriya muvaffaqiyatli o‘chirildi!' };
-    } catch (error) {
-      console.error('Kategoriya o‘chirishda xatolik:', error);
-      throw new InternalServerErrorException('Kategoriya o‘chirishda xatolik yuz berdi!');
-    }
+  if (!category) {
+    throw new NotFoundException(`ID ${id} ga ega kategoriya topilmadi!`);
   }
+
+  try {
+    category.parts = [];
+    await this.categoryRepository.save(category);
+
+    await this.categoryRepository.delete(id);
+
+    return { message: 'Kategoriya muvaffaqiyatli o‘chirildi!' };
+  } catch (error) {
+    console.error('Kategoriya o‘chirishda xatolik:', error);
+    throw new InternalServerErrorException('Kategoriya o‘chirishda xatolik yuz berdi!');
+  }
+}
+
 }

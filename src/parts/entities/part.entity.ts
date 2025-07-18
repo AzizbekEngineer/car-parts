@@ -37,8 +37,9 @@ export class Part {
   baseUnit: string;
 
   @ManyToMany(() => Category, (category) => category.parts, { cascade: true })
-  @JoinTable()
-  categories: Category[];
+@JoinTable()
+categories: Category[];
+
 
   @Column({ nullable: true })
   price: number;

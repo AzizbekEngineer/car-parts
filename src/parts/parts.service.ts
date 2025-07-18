@@ -103,7 +103,7 @@ export class PartsService {
   }
 }
 
-  async remove(id: number) {
+async remove(id: number) {
   const part = await this.partsRepository.findOne({
     where: { id },
     relations: ['categories'],
@@ -114,21 +114,13 @@ export class PartsService {
   }
 
   try {
-    // 🔓 Kategoriya bog‘lanishini tozalaymiz (ManyToMany join table)
-    if (part.categories?.length) {
-      await this.partsRepository
-        .createQueryBuilder()
-        .relation(Part, 'categories')
-        .of(part.id)
-        .remove(part.categories.map((cat) => cat.id)); // id larni olib beramiz
-    }
-
     await this.partsRepository
       .createQueryBuilder()
-      .delete()
-      .from(Part)
-      .where('id = :id', { id })
-      .execute();
+      .relation(Part, 'categories')
+      .of(id) 
+      .remove(part.categories);
+
+    await this.partsRepository.delete(id);
 
     return { message: 'Mahsulot muvaffaqiyatli o‘chirildi!' };
   } catch (error) {
@@ -136,6 +128,7 @@ export class PartsService {
     throw new InternalServerErrorException('Mahsulot o‘chirishda xatolik yuz berdi!');
   }
 }
+
 
 
   async getPartsByCategory(categoryId: string) {

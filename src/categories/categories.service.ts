@@ -89,9 +89,11 @@ export class CategoryService {
   }
 
   try {
-    category.parts = [];
-    await this.categoryRepository.save(category);
-
+    await this.categoryRepository
+      .createQueryBuilder()
+      .relation(Category, 'parts')
+      .of(id)
+      .remove(category.parts); 
     await this.categoryRepository.delete(id);
 
     return { message: 'Kategoriya muvaffaqiyatli o‘chirildi!' };

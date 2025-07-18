@@ -22,6 +22,6 @@ export class Category {
   imageUrl: string;
 
   @ManyToMany(() => Part, (part) => part.categories)
-  @JoinTable()
   parts: Part[];
+
 }

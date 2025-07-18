@@ -54,12 +54,17 @@ export class PartsService {
   }
 
   async findAll() {
-    const parts = await this.partsRepository.find({ relations: ['categories'] });
-    if (!parts.length) {
-      throw new NotFoundException('Hozircha mahsulotlar mavjud emas!');
-    }
-    return parts;
+  const parts = await this.partsRepository.find({
+    relations: ['categories'], 
+  });
+
+  if (!parts.length) {
+    throw new NotFoundException('Hozircha mahsulotlar mavjud emas!');
   }
+
+  return parts;
+}
+
 
   async findOne(id: number) {
     const part = await this.partsRepository.findOne({ where: { id }, relations: ['categories'] });
@@ -86,7 +91,7 @@ export class PartsService {
   async remove(id: number) {
   const existingPart = await this.partsRepository.findOne({
     where: { id },
-    relations: ['categories'], // 👈 bog‘lanishni olish kerak
+    relations: ['categories'],
   });
 
   if (!existingPart) {
@@ -94,8 +99,12 @@ export class PartsService {
   }
 
   try {
-    existingPart.categories = [];
-    await this.partsRepository.save(existingPart);
+    await this.partsRepository
+      .createQueryBuilder()
+      .relation(Part, 'categories')
+      .of(id)
+      .remove(existingPart.categories);
+
     await this.partsRepository.delete(id);
 
     return { message: `Mahsulot muvaffaqiyatli o‘chirildi!` };
@@ -104,6 +113,7 @@ export class PartsService {
     throw new InternalServerErrorException('Mahsulot o‘chirishda xatolik yuz berdi!');
   }
 }
+
 
   async getPartsByCategory(categoryId: string) {
     const category = await this.categoriesRepository.findOne({

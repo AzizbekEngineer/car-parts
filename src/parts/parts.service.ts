@@ -55,7 +55,8 @@ export class PartsService {
 
   async findAll() {
   const parts = await this.partsRepository.find({
-    relations: ['categories'], 
+    relations: ['categories'],
+    order: { id: 'ASC' },
   });
 
   if (!parts.length) {
@@ -66,6 +67,7 @@ export class PartsService {
 }
 
 
+
   async findOne(id: number) {
     const part = await this.partsRepository.findOne({ where: { id }, relations: ['categories'] });
     if (!part) {
@@ -73,20 +75,33 @@ export class PartsService {
     }
     return part;
   }
-
   async update(id: number, updatePartDto: UpdatePartDto) {
-    const part = await this.partsRepository.findOne({ where: { id }, relations: ['categories'] });
-    if (!part) {
-      throw new NotFoundException(`ID ${id} ga ega mahsulot topilmadi!`);
-    }
+  const part = await this.partsRepository.findOne({
+    where: { id },
+    relations: ['categories'],
+  });
 
-    if (updatePartDto.categories) {
-      part.categories = await this.categoriesRepository.findByIds(updatePartDto.categories);
-    }
-
-    Object.assign(part, updatePartDto);
-    return await this.partsRepository.save(part);
+  if (!part) {
+    throw new NotFoundException(`ID ${id} ga ega mahsulot topilmadi!`);
   }
+
+  if (updatePartDto.categories) {
+    const categories = await this.categoriesRepository.findByIds(updatePartDto.categories);
+    part.categories = categories;
+  }
+  for (const key in updatePartDto) {
+    if (key !== 'categories') {
+      part[key] = updatePartDto[key];
+    }
+  }
+
+  try {
+    return await this.partsRepository.save(part);
+  } catch (error) {
+    console.error('Update xatolik:', error);
+    throw new InternalServerErrorException('Mahsulotni yangilashda xatolik yuz berdi!');
+  }
+}
 
   async remove(id: number) {
   const part = await this.partsRepository.findOne({
@@ -99,12 +114,21 @@ export class PartsService {
   }
 
   try {
+    // 🔓 Kategoriya bog‘lanishini tozalaymiz (ManyToMany join table)
+    if (part.categories?.length) {
+      await this.partsRepository
+        .createQueryBuilder()
+        .relation(Part, 'categories')
+        .of(part.id)
+        .remove(part.categories.map((cat) => cat.id)); // id larni olib beramiz
+    }
+
     await this.partsRepository
       .createQueryBuilder()
-      .relation(Part, 'categories')
-      .of(part) 
-      .remove(part.categories); 
-    await this.partsRepository.delete(id);
+      .delete()
+      .from(Part)
+      .where('id = :id', { id })
+      .execute();
 
     return { message: 'Mahsulot muvaffaqiyatli o‘chirildi!' };
   } catch (error) {

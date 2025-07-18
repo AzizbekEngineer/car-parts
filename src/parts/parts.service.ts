@@ -84,13 +84,26 @@ export class PartsService {
   }
 
   async remove(id: number) {
-    const existingPart = await this.partsRepository.findOne({ where: { id } });
-    if (!existingPart) {
-      throw new NotFoundException(`ID ${id} ga ega mahsulot topilmadi!`);
-    }
-    await this.partsRepository.delete(id);
-    return { message: `Mahsulot muvaffaqiyatli o‘chirildi!` };
+  const existingPart = await this.partsRepository.findOne({
+    where: { id },
+    relations: ['categories'], // 👈 bog‘lanishni olish kerak
+  });
+
+  if (!existingPart) {
+    throw new NotFoundException(`ID ${id} ga ega mahsulot topilmadi!`);
   }
+
+  try {
+    existingPart.categories = [];
+    await this.partsRepository.save(existingPart);
+    await this.partsRepository.delete(id);
+
+    return { message: `Mahsulot muvaffaqiyatli o‘chirildi!` };
+  } catch (error) {
+    console.error('Mahsulot o‘chirishda xatolik:', error);
+    throw new InternalServerErrorException('Mahsulot o‘chirishda xatolik yuz berdi!');
+  }
+}
 
   async getPartsByCategory(categoryId: string) {
     const category = await this.categoriesRepository.findOne({

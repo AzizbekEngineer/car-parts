@@ -106,7 +106,7 @@ export class PartsService {
 async remove(id: number) {
   const part = await this.partsRepository.findOne({
     where: { id },
-    relations: ['categories'],
+    relations: ['categories'], // KERAKLI QISM!
   });
 
   if (!part) {
@@ -114,16 +114,16 @@ async remove(id: number) {
   }
 
   try {
-    // 👇 Har bir category bilan bog‘liq join table aloqalarni olib tashlaymiz
-    for (const category of part.categories) {
+    // 1. Bog‘lanishlarni join table'dan olib tashlash
+    if (part.categories.length > 0) {
       await this.partsRepository
         .createQueryBuilder()
-        .relation('categories')
-        .of(part) // shu part
-        .remove(category); // undan bu categoriyani ajrat
+        .relation('categories')   // << relation nomi
+        .of(part)                 // << aynan shu part
+        .remove(part.categories); // << barcha kategoriyalarni ajrat
     }
 
-    // Endi mahsulotni o‘chirish mumkin
+    // 2. Endi asosiy entity'ni o‘chirish mumkin
     await this.partsRepository.delete(id);
 
     return { message: 'Mahsulot muvaffaqiyatli o‘chirildi!' };

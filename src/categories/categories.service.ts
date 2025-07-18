@@ -42,7 +42,7 @@ export class CategoryService {
   }
 
   async findAll() {
-    const categories = await this.categoryRepository.find({ relations: ['parts'] });
+    const categories = await this.categoryRepository.find({ relations: ['parts'], order: { id: 'ASC' },});
     if (!categories.length) {
       throw new NotFoundException('Hozircha kategoriyalar mavjud emas!');
     }

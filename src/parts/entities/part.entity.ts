@@ -1,9 +1,4 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  ManyToMany,
-} from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable } from 'typeorm';
 import { Category } from '../../categories/entities/category.entity';
 
 @Entity('products')
@@ -23,8 +18,8 @@ export class Part {
   @Column('text', { array: true, nullable: true })
   marka: string[];
 
-  @Column('int', { array: true, nullable: true }) // yil raqamlar — number emas int
-  year: number[];
+  @Column('text', { array: true, nullable: true })
+  year: string[];
 
   @Column('text', { array: true, nullable: true })
   oem: string[];
@@ -41,7 +36,8 @@ export class Part {
   @Column({ default: 'шт' })
   baseUnit: string;
 
-  @ManyToMany(() => Category, (category) => category.parts)
+  @ManyToMany(() => Category, (category) => category.parts, { cascade: true })
+  @JoinTable()
   categories: Category[];
 
   @Column({ nullable: true })

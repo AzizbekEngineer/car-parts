@@ -30,8 +30,8 @@ export class CreatePartDto {
 
   @IsArray()
   @ArrayNotEmpty()
-  @IsNumber({}, { each: true })
-  year: number[];
+  @IsString({ each: true })
+  year: string[];
 
   @IsString()
   @IsOptional()

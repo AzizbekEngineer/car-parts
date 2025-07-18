@@ -29,9 +29,9 @@ export class UpdatePartDto {
   oem: string[];
 
   @IsArray()
-  @IsNumber({}, { each: true })
+  @IsString({ each: true })
   @IsOptional()
-  year: number[];
+  year: string[];
 
   @IsString()
   @IsOptional()

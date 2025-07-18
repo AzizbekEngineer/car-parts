@@ -113,14 +113,14 @@ async remove(id: number) {
     throw new NotFoundException(`ID ${id} ga ega part topilmadi`);
   }
 
-  // 🔥 1. join jadvaldan bog‘lanmalarni o‘chir
+  // 1️⃣ JOIN jadvaldan bog‘lanmalarni o‘chir (bu eng muhim qadam)
   await this.partsRepository
     .createQueryBuilder()
-    .relation('Part', 'categories')
+    .relation(Part, 'categories') // 🟢 'Part' emas, bu yerda Part klassi yoziladi!
     .of(id)
     .remove(part.categories);
 
-  // ✅ 2. part'ni o‘chir
+  // 2️⃣ Partni o‘chir
   await this.partsRepository.delete(id);
 
   return { message: 'Part muvaffaqiyatli o‘chirildi!' };

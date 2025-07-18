@@ -89,12 +89,12 @@ export class PartsService {
   }
 
   async remove(id: number) {
-  const existingPart = await this.partsRepository.findOne({
+  const part = await this.partsRepository.findOne({
     where: { id },
     relations: ['categories'],
   });
 
-  if (!existingPart) {
+  if (!part) {
     throw new NotFoundException(`ID ${id} ga ega mahsulot topilmadi!`);
   }
 
@@ -102,12 +102,11 @@ export class PartsService {
     await this.partsRepository
       .createQueryBuilder()
       .relation(Part, 'categories')
-      .of(id)
-      .remove(existingPart.categories);
-
+      .of(part) 
+      .remove(part.categories); 
     await this.partsRepository.delete(id);
 
-    return { message: `Mahsulot muvaffaqiyatli o‘chirildi!` };
+    return { message: 'Mahsulot muvaffaqiyatli o‘chirildi!' };
   } catch (error) {
     console.error('Mahsulot o‘chirishda xatolik:', error);
     throw new InternalServerErrorException('Mahsulot o‘chirishda xatolik yuz berdi!');

@@ -64,4 +64,5 @@ export class UpdatePartDto {
   @IsBoolean()
   @IsOptional()
   inStock: boolean;
+  
 }

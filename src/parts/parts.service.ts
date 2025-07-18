@@ -102,7 +102,6 @@ export class PartsService {
     throw new InternalServerErrorException('Mahsulotni yangilashda xatolik yuz berdi!');
   }
 }
-
 async remove(id: number) {
   const part = await this.partsRepository.findOne({
     where: { id },
@@ -114,12 +113,12 @@ async remove(id: number) {
   }
 
   try {
+
     await this.partsRepository
       .createQueryBuilder()
       .relation(Part, 'categories')
-      .of(id) 
+      .of(part.id)
       .remove(part.categories);
-
     await this.partsRepository.delete(id);
 
     return { message: 'Mahsulot muvaffaqiyatli o‘chirildi!' };

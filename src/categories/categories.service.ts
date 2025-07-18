@@ -77,7 +77,7 @@ export class CategoryService {
     Object.assign(category, updateCategoryDto);
     return this.categoryRepository.save(category);
   }
-
+  
   async remove(id: number) {
   const category = await this.categoryRepository.findOne({
     where: { id },
@@ -93,7 +93,8 @@ export class CategoryService {
       .createQueryBuilder()
       .relation(Category, 'parts')
       .of(id)
-      .remove(category.parts); 
+      .remove(category.parts); // yoki []
+
     await this.categoryRepository.delete(id);
 
     return { message: 'Kategoriya muvaffaqiyatli o‘chirildi!' };

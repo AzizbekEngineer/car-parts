@@ -114,11 +114,16 @@ async remove(id: number) {
   }
 
   try {
-    // 1️⃣ Bog‘lanishni tozalash (join tabledagi qatorlar o‘chadi)
-    part.categories = [];
-    await this.partsRepository.save(part); // join jadval tozalanadi
+    // 👇 Har bir category bilan bog‘liq join table aloqalarni olib tashlaymiz
+    for (const category of part.categories) {
+      await this.partsRepository
+        .createQueryBuilder()
+        .relation('categories')
+        .of(part) // shu part
+        .remove(category); // undan bu categoriyani ajrat
+    }
 
-    // 2️⃣ Mahsulotni o‘chirish
+    // Endi mahsulotni o‘chirish mumkin
     await this.partsRepository.delete(id);
 
     return { message: 'Mahsulot muvaffaqiyatli o‘chirildi!' };

@@ -102,6 +102,7 @@ export class PartsService {
     throw new InternalServerErrorException('Mahsulotni yangilashda xatolik yuz berdi!');
   }
 }
+
 async remove(id: number) {
   const part = await this.partsRepository.findOne({
     where: { id },
@@ -113,21 +114,19 @@ async remove(id: number) {
   }
 
   try {
+    // 1️⃣ Bog‘lanishni tozalash (join tabledagi qatorlar o‘chadi)
+    part.categories = [];
+    await this.partsRepository.save(part); // join jadval tozalanadi
 
-    await this.partsRepository
-      .createQueryBuilder()
-      .relation(Part, 'categories')
-      .of(part.id)
-      .remove(part.categories);
+    // 2️⃣ Mahsulotni o‘chirish
     await this.partsRepository.delete(id);
 
     return { message: 'Mahsulot muvaffaqiyatli o‘chirildi!' };
   } catch (error) {
-    console.error('Mahsulot o‘chirishda xatolik:', error);
-    throw new InternalServerErrorException('Mahsulot o‘chirishda xatolik yuz berdi!');
+    console.error('O‘chirishda xatolik:', error);
+    throw new InternalServerErrorException('O‘chirishda xatolik yuz berdi!');
   }
 }
-
 
 
   async getPartsByCategory(categoryId: string) {

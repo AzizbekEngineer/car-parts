@@ -106,31 +106,21 @@ export class PartsService {
 async remove(id: number) {
   const part = await this.partsRepository.findOne({
     where: { id },
-    relations: ['categories'], // KERAKLI QISM!
+    relations: ['categories'], // MUHIM!
   });
 
   if (!part) {
-    throw new NotFoundException(`ID ${id} ga ega mahsulot topilmadi!`);
+    throw new NotFoundException(`Part ID ${id} topilmadi`);
   }
 
-  try {
-    // 1. Bog‘lanishlarni join table'dan olib tashlash
-    if (part.categories.length > 0) {
-      await this.partsRepository
-        .createQueryBuilder()
-        .relation('categories')   // << relation nomi
-        .of(part)                 // << aynan shu part
-        .remove(part.categories); // << barcha kategoriyalarni ajrat
-    }
+  // 🧹 1. Kategoriya bog‘lanishini tozalaymiz (join jadvaldan olib tashlaydi)
+  part.categories = [];
+  await this.partsRepository.save(part); // Bu bosqich zarur!
 
-    // 2. Endi asosiy entity'ni o‘chirish mumkin
-    await this.partsRepository.delete(id);
+  // 🗑 2. Endi asosiy part'ni o‘chiramiz
+  await this.partsRepository.delete(id);
 
-    return { message: 'Mahsulot muvaffaqiyatli o‘chirildi!' };
-  } catch (error) {
-    console.error('O‘chirishda xatolik:', error);
-    throw new InternalServerErrorException('O‘chirishda xatolik yuz berdi!');
-  }
+  return { message: 'Part muvaffaqiyatli o‘chirildi!' };
 }
 
 
